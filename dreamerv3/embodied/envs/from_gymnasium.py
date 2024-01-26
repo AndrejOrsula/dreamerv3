@@ -56,7 +56,8 @@ class FromGymnasium(embodied.Env, Generic[U, V]):
     return spaces
 
   def step(self, action):
-    if action["reset"] or self._done:
+    # if action["reset"] or self._done:
+    if self._done:
       self._done = False
       # we don"t bother setting ._info here because it gets set below, once we
       # take the next .step()
@@ -72,6 +73,9 @@ class FromGymnasium(embodied.Env, Generic[U, V]):
         obs, reward,
         is_last=bool(self._done),
         is_terminal=bool(self._info.get("is_terminal", self._done)))
+
+  def reset(self):
+    return self._env.reset()
 
   def _obs(
       self, obs, reward, is_first=False, is_last=False, is_terminal=False):
