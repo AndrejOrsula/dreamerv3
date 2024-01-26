@@ -33,6 +33,14 @@ class BatchEnv(base.Env):
       obs = [ob() for ob in obs]
     return {k: np.array([ob[k] for ob in obs]) for k in obs[0]}
 
+  def reset(self):
+    obs = []
+    for i, env in enumerate(self._envs):
+      obs.append(env.reset())
+    if self._parallel:
+      obs = [ob() for ob in obs]
+    return obs
+
   def render(self):
     return np.stack([env.render() for env in self._envs])
 
