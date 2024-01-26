@@ -18,6 +18,7 @@ from .worker import Worker
 from .batcher import Batcher
 from .metrics import Metrics
 from .uuid import uuid
+from .policy_eval_driver import PolicyEvalDriver
 
 from .batch import BatchEnv
 from .random import RandomAgent
