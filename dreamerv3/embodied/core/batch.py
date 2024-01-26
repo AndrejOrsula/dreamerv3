@@ -6,7 +6,6 @@ from . import base
 class BatchEnv(base.Env):
 
   def __init__(self, envs, parallel):
-    assert all(len(env) == 0 for env in envs)
     assert len(envs) > 0
     self._envs = envs
     self._parallel = parallel
