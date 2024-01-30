@@ -21,6 +21,7 @@ from .uuid import uuid
 from .policy_eval_driver import PolicyEvalDriver
 
 from .batch import BatchEnv
+from .extracted_batch import ExtractedBatchEnv
 from .random import RandomAgent
 from .distr import Client, Server, BatchServer
 
