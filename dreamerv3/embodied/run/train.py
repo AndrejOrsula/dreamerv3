@@ -37,7 +37,7 @@ def train(agent, env, replay, logger, args):
         'sum_abs_reward': sum_abs_reward,
         'reward_rate': (np.abs(ep['reward']) >= 0.5).mean(),
     }, prefix='episode')
-    print(f'Episode has {length} steps and return {score:.1f}.')
+    # print(f'Episode has {length} steps and return {score:.1f}.')
     stats = {}
     for key in args.log_keys_video:
       if key in ep:
