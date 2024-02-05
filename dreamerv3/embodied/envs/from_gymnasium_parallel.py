@@ -92,7 +92,7 @@ class FromGymnasiumParallel(embodied.Env, Generic[U, V]):
             step_rewards = np.array([reward for _, reward, _, _, _ in step_ret])
             step_terminated = np.array([terminated for _, _, terminated, _, _ in step_ret])
             step_truncated = np.array([truncated for _, _, _, truncated, _ in step_ret])
-            # self._info = [info for _, _, _, _, info in step_ret]
+            step_info = [info for _, _, _, _, info in step_ret]
 
             self._done[envs_to_step] = np.logical_or(step_terminated, step_truncated)
 
@@ -102,6 +102,7 @@ class FromGymnasiumParallel(embodied.Env, Generic[U, V]):
         is_first = []
         is_last = []
         is_terminal = []
+        is_success = []
         index_reset = 0
         index_step = 0
         for i in range(self.n_envs):
@@ -111,6 +112,7 @@ class FromGymnasiumParallel(embodied.Env, Generic[U, V]):
                 is_first.append(True)
                 is_last.append(False)
                 is_terminal.append(False)
+                is_success.append(False)
                 index_reset += 1
             else:
                 obs.append(step_observations[index_step])
@@ -118,6 +120,7 @@ class FromGymnasiumParallel(embodied.Env, Generic[U, V]):
                 is_first.append(False)
                 is_last.append(self._done[i])
                 is_terminal.append(step_terminated[index_step])
+                is_success.append(step_info[index_step].get("is_success", False))
                 index_step += 1
 
         return {
@@ -126,6 +129,7 @@ class FromGymnasiumParallel(embodied.Env, Generic[U, V]):
             "is_first": np.array(is_first),
             "is_last": np.array(is_last),
             "is_terminal": np.array(is_terminal),
+            "is_success": np.array(is_success)
         }
 
 
