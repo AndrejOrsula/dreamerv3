@@ -101,12 +101,13 @@ class Reverb:
     raise NotImplementedError
 
   def save(self, wait=False):
-    for writer in self.writers.values():
-      writer.flush()
-    with self.sigpath.open('wb') as file:
-      file.write(pickle.dumps(self.signature))
-    if self.directory:
-      self.client.checkpoint()
+    pass
+    # for writer in self.writers.values():
+    #   writer.flush()
+    # with self.sigpath.open('wb') as file:
+    #   file.write(pickle.dumps(self.signature))
+    # if self.directory:
+    #   self.client.checkpoint()
 
   def load(self, data=None):
     pass

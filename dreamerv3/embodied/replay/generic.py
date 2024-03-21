@@ -123,9 +123,10 @@ class Generic:
       self.sampler.prioritize(ids, prios)
 
   def save(self, wait=False):
-    if not self.saver:
-      return
-    self.saver.save(wait)
+    pass
+    # if not self.saver:
+    #   return
+    # self.saver.save(wait)
     # return {
     #     'saver': self.saver.save(wait),
     #     # 'remover': self.remover.save(wait),
@@ -134,15 +135,16 @@ class Generic:
     # }
 
   def load(self, data=None):
-    if not self.saver:
-      return
-    workers = set()
-    for step, worker in self.saver.load(self.capacity, self.length):
-      workers.add(worker)
-      self.add(step, worker, load=True)
-    for worker in workers:
-      del self.streams[worker]
-      del self.counters[worker]
+    pass
+    # if not self.saver:
+    #   return
+    # workers = set()
+    # for step, worker in self.saver.load(self.capacity, self.length):
+    #   workers.add(worker)
+    #   self.add(step, worker, load=True)
+    # for worker in workers:
+    #   del self.streams[worker]
+    #   del self.counters[worker]
     # self.remover.load(data['remover'])
     # self.sampler.load(data['sampler'])
     # self.limiter.load(data['limiter'])

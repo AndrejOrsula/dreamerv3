@@ -65,18 +65,20 @@ class NaiveChunks(embodied.Replay):
       yield self._sample()
 
   def save(self, wait=False):
-    for chunk in self.ongoing.values():
-      if chunk.length:
-        self.promises.append(self.workers.submit(chunk.save, self.directory))
-    if wait:
-      [x.result() for x in self.promises]
-      self.promises.clear()
+    pass
+    # for chunk in self.ongoing.values():
+    #   if chunk.length:
+    #     self.promises.append(self.workers.submit(chunk.save, self.directory))
+    # if wait:
+    #   [x.result() for x in self.promises]
+    #   self.promises.clear()
 
   def load(self, data=None):
-    filenames = chunklib.Chunk.scan(self.directory, capacity)
-    if not filenames:
-      return
-    threads = min(len(filenames), 32)
-    with concurrent.futures.ThreadPoolExecutor(threads) as executor:
-      chunks = list(executor.map(chunklib.Chunk.load, filenames))
-    self.buffers = {chunk.uuid: chunk for chunk in chunks}
+    pass
+    # filenames = chunklib.Chunk.scan(self.directory, capacity)
+    # if not filenames:
+    #   return
+    # threads = min(len(filenames), 32)
+    # with concurrent.futures.ThreadPoolExecutor(threads) as executor:
+    #   chunks = list(executor.map(chunklib.Chunk.load, filenames))
+    # self.buffers = {chunk.uuid: chunk for chunk in chunks}

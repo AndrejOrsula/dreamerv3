@@ -10,7 +10,7 @@ def parallel(agent, replay, logger, make_env, num_envs, args):
   step = logger.step
   timer = embodied.Timer()
   timer.wrap('agent', agent, ['policy', 'train', 'report', 'save'])
-  timer.wrap('replay', replay, ['add', 'save'])
+  timer.wrap('replay', replay, ['add'])
   timer.wrap('logger', logger, ['write'])
   workers = []
   workers.append(embodied.distr.Thread(

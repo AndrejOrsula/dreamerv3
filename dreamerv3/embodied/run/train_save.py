@@ -25,7 +25,7 @@ def train_save(agent, env, replay, logger, args):
   timer = embodied.Timer()
   timer.wrap('agent', agent, ['policy', 'train', 'report', 'save'])
   timer.wrap('env', env, ['step'])
-  timer.wrap('replay', replay, ['add', 'save'])
+  timer.wrap('replay', replay, ['add'])
   timer.wrap('logger', logger, ['write'])
 
   nonzeros = set()
