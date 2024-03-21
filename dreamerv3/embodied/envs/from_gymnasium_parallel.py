@@ -28,12 +28,7 @@ class FromGymnasiumParallel(embodied.Env, Generic[U, V]):
         self._obs_key = obs_key
         self._act_key = act_key
         self._done = np.array([True for _ in range(self.n_envs)])
-        # self._info = None
 
-    # @property
-    # def info(self):
-        # return self._info
-    
     @property
     def n_envs(self):
         return self._env.n_envs
@@ -79,23 +74,24 @@ class FromGymnasiumParallel(embodied.Env, Generic[U, V]):
         envs_to_step = np.where(self._done == False)[0]
 
         if len(envs_to_reset) > 0:
-            reset_ret = self._env.reset_envs(envs_to_reset)    
-            
+            reset_ret = self._env.reset_envs(envs_to_reset)
+
             reset_observations = np.stack([obs for obs, _ in reset_ret])
 
             self._done[envs_to_reset] = False
-        
+
         if len(envs_to_step) > 0:
             step_ret = self._env.step_envs(gymnasium_action, envs_to_step)
 
             step_observations = np.stack([obs for obs, _, _, _, _ in step_ret])
             step_rewards = np.array([reward for _, reward, _, _, _ in step_ret])
-            step_terminated = np.array([terminated for _, _, terminated, _, _ in step_ret])
+            step_terminated = np.array(
+                [terminated for _, _, terminated, _, _ in step_ret]
+            )
             step_truncated = np.array([truncated for _, _, _, truncated, _ in step_ret])
             step_info = [info for _, _, _, _, info in step_ret]
 
             self._done[envs_to_step] = np.logical_or(step_terminated, step_truncated)
-
 
         obs = []
         reward = []
@@ -129,9 +125,8 @@ class FromGymnasiumParallel(embodied.Env, Generic[U, V]):
             "is_first": np.array(is_first),
             "is_last": np.array(is_last),
             "is_terminal": np.array(is_terminal),
-            "is_success": np.array(is_success)
+            "is_success": np.array(is_success),
         }
-
 
     def reset(self):
         return self._env.reset()
