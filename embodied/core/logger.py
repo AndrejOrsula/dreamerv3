@@ -265,11 +265,53 @@ class TensorBoardOutput(AsyncOutput):
       video = np.clip(255 * video, 0, 255).astype(np.uint8)
     try:
       T, H, W, C = video.shape
-      summary = tf1.Summary()
-      image = tf1.Summary.Image(height=H, width=W, colorspace=C)
-      image.encoded_image_string = _encode_gif(video, self._fps)
-      summary.value.add(tag=name, image=image)
-      tf.summary.experimental.write_raw_pb(summary.SerializeToString(), step)
+      if C in [1, 3]:
+        summary = tf1.Summary()
+        image = tf1.Summary.Image(height=H, width=W, colorspace=C)
+        image.encoded_image_string = _encode_gif(video, self._fps)
+        summary.value.add(tag=name, image=image)
+        tf.summary.experimental.write_raw_pb(summary.SerializeToString(), step)
+      elif C == 2:
+        mono_video = np.expand_dims(video[..., 0], axis=-1)
+        mono_name = f'{name}_mono'
+        mono_summary = tf1.Summary()
+        mono_image = tf1.Summary.Image(height=H, width=W, colorspace=1)
+        mono_image.encoded_image_string = _encode_gif(mono_video, self._fps)
+        mono_summary.value.add(tag=mono_name, image=mono_image)
+        tf.summary.experimental.write_raw_pb(mono_summary.SerializeToString(), step)
+
+        depth_video = np.expand_dims(video[..., 1], axis=-1)
+        depth_name = f'{name}_depth'
+        depth_summary = tf1.Summary()
+        depth_image = tf1.Summary.Image(height=H, width=W, colorspace=1)
+        depth_image.encoded_image_string = _encode_gif(depth_video, self._fps)
+        depth_summary.value.add(tag=depth_name, image=depth_image)
+        tf.summary.experimental.write_raw_pb(depth_summary.SerializeToString(), step)
+      elif C == 4:
+        rgb_video = video[..., :3]
+        rgb_name = f'{name}_rgb'
+        rgb_summary = tf1.Summary()
+        rgb_image = tf1.Summary.Image(height=H, width=W, colorspace=3)
+        rgb_image.encoded_image_string = _encode_gif(rgb_video, self._fps)
+        rgb_summary.value.add(tag=rgb_name, image=rgb_image)
+        tf.summary.experimental.write_raw_pb(rgb_summary.SerializeToString(), step)
+
+        depth_video = np.expand_dims(video[..., 3], axis=-1)
+        depth_name = f'{name}_depth'
+        depth_summary = tf1.Summary()
+        depth_image = tf1.Summary.Image(height=H, width=W, colorspace=1)
+        depth_image.encoded_image_string = _encode_gif(depth_video, self._fps)
+        depth_summary.value.add(tag=depth_name, image=depth_image)
+        tf.summary.experimental.write_raw_pb(depth_summary.SerializeToString(), step)
+      else:
+        for ch in range(C):
+          ch_video = np.expand_dims(video[..., ch], axis=-1)
+          ch_name = f'{name}_ch{ch}'
+          ch_summary = tf1.Summary()
+          ch_image = tf1.Summary.Image(height=H, width=W, colorspace=1)
+          ch_image.encoded_image_string = _encode_gif(ch_video, self._fps)
+          ch_summary.value.add(tag=ch_name, image=ch_image)
+          tf.summary.experimental.write_raw_pb(ch_summary.SerializeToString(), step)
     except (IOError, OSError) as e:
       print('GIF summaries require ffmpeg in $PATH.', e)
       tf.summary.image(name, video, step)
