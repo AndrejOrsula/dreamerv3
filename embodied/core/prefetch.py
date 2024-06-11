@@ -8,7 +8,7 @@ from .. import distr
 
 class Prefetch:
 
-  def __init__(self, source, transform=None, amount=1):
+  def __init__(self, source, transform=None, amount=2):
     self.source = source
     self.transform = transform
     self.queue = queuelib.Queue(amount)
