@@ -293,18 +293,30 @@ class Agent(embodied.jax.Agent):
       pred = jnp.concatenate([obsrecons[key].pred(), imgrecons[key].pred()], 1)
       pred = jnp.clip(pred * 255, 0, 255).astype(jnp.uint8)
       error = ((i32(pred) - i32(true) + 255) / 2).astype(np.uint8)
-      video = jnp.concatenate([true, pred, error], 2)
-
-      video = jnp.pad(video, [[0, 0], [0, 0], [2, 2], [2, 2], [0, 0]])
-      mask = jnp.zeros(video.shape, bool).at[:, :, 2:-2, 2:-2, :].set(True)
-      border = jnp.full((T, 3), jnp.array([0, 255, 0]), jnp.uint8)
-      border = border.at[T // 2:].set(jnp.array([255, 0, 0], jnp.uint8))
-      video = jnp.where(mask, video, border[None, :, None, None, :])
-      video = jnp.concatenate([video, 0 * video[:, :10]], 1)
-
-      B, T, H, W, C = video.shape
-      grid = video.transpose((1, 2, 0, 3, 4)).reshape((T, H, B * W, C))
-      metrics[f'openloop/{key}'] = grid
+      video_with_error = jnp.concatenate([true, pred, error], 2)
+      video_padded = jnp.pad(video_with_error, [[0, 0], [0, 0], [2, 2], [2, 2], [0, 0]])
+      B, T, _, _, C_padded = video_padded.shape
+      mask = jnp.zeros(video_padded.shape, bool).at[:, :, 2:-2, 2:-2, :].set(True)
+      green_border_color = jnp.array([32, 255, 32] + [0] * (C_padded - 3), jnp.uint8)
+      blue_border_color = jnp.array([128, 128, 255] + [0] * (C_padded - 3), jnp.uint8)
+      border = jnp.full((T, C_padded), green_border_color, jnp.uint8)
+      border = border.at[T // 2:].set(blue_border_color)
+      video_with_border = jnp.where(mask, video_padded, border[None, :, None, None, :])
+      video_final = jnp.concatenate([video_with_border, 0 * video_with_border[:, :10]], 1)
+      B, T_final, H_final, W_final, C_final = video_final.shape
+      if C_final >= 3:
+          video_rgb = video_final[:, :, :, :, :3]
+          grid_rgb = video_rgb.transpose((1, 2, 0, 3, 4)).reshape((T_final, H_final, B * W_final, 3))
+          metrics[f'openloop/{key}/ch0-2'] = grid_rgb
+          for i in range(3, C_final):
+              video_channel = video_final[:, :, :, :, i:i+1]
+              grid_channel = video_channel.transpose((1, 2, 0, 3, 4)).reshape((T_final, H_final, B * W_final, 1))
+              metrics[f'openloop/{key}/ch{i}'] = grid_channel
+      else:
+        for i in range(C_final):
+            video_channel = video_final[:, :, :, :, i:i+1]
+            grid_channel = video_channel.transpose((1, 2, 0, 3, 4)).reshape((T_final, H_final, B * W_final, 1))
+            metrics[f'openloop/{key}/ch{i}'] = grid_channel
 
     carry = (*new_carry, {k: data[k][:, -1] for k in self.act_space})
     return carry, metrics
