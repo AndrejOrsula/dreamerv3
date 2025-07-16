@@ -297,10 +297,10 @@ class Agent(embodied.jax.Agent):
       video_padded = jnp.pad(video_with_error, [[0, 0], [0, 0], [2, 2], [2, 2], [0, 0]])
       B, T, _, _, C_padded = video_padded.shape
       mask = jnp.zeros(video_padded.shape, bool).at[:, :, 2:-2, 2:-2, :].set(True)
-      green_border_color = jnp.array([32, 255, 32] + [0] * (C_padded - 3), jnp.uint8)
-      blue_border_color = jnp.array([128, 128, 255] + [0] * (C_padded - 3), jnp.uint8)
-      border = jnp.full((T, C_padded), green_border_color, jnp.uint8)
-      border = border.at[T // 2:].set(blue_border_color)
+      color_video_prior = jnp.array((0,) * C_padded, jnp.uint8)
+      color_video_prediction = jnp.array((63,) * C_padded, jnp.uint8)
+      border = jnp.full((T, C_padded), color_video_prior, jnp.uint8)
+      border = border.at[T // 2:].set(color_video_prediction)
       video_with_border = jnp.where(mask, video_padded, border[None, :, None, None, :])
       video_final = jnp.concatenate([video_with_border, 0 * video_with_border[:, :10]], 1)
       B, T_final, H_final, W_final, C_final = video_final.shape
